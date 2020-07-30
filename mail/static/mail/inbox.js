@@ -37,7 +37,31 @@ function load_mailbox(mailbox) {
   // Show the mailbox name
   document.querySelector('#box-name').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-  
+  // Load emails for given mailbox and insert into DOM
+  fetch('emails/' + mailbox)
+  .then(response => response.json())
+  .then(emails => {
+    if (emails) {
+      console.log(email);
+      var html = emails.map((email) => {
+        sender = '<h5>' + email.sender + '</h5>';
+        recipients = '<h5>' + email.recipients.join(',') + '</h5>';
+        subject = '<h6>' + email.subject + '</h6>';
+        body = '<p>' + email.subject + '</p>';
+        timestamp = '<p>' + email.timestamp + '</p>';
+        if (email.read === true){
+          return '<div class="email read">' + sender + recipients + subject + body + timestamp + '</div>';
+        } else {
+          return '<div class="email">' + sender + recipients + subject + body + timestamp + '</div>';
+        }
+      }).join('');
+
+    } else {
+      var html = '<h4> No Emails Found </h4>';
+      
+    }
+    document.querySelector('#email-container').appendChild(html);
+  })
 }
 
 function send_email() {
