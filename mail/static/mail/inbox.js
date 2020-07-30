@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // By default, load the inbox
   load_mailbox('inbox');
+
+  // prevent default form submission and use fetch
+  document.querySelector('#compose-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    send_email()
+  });
 });
 
 function compose_email() {
@@ -29,13 +35,10 @@ function load_mailbox(mailbox) {
   document.querySelector('#compose-view').style.display = 'none';
 
   // Show the mailbox name
-  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
-}
+  document.querySelector('#box-name').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-document.querySelector('#compose-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  send_email()
-});
+  
+}
 
 function send_email() {
   // Get value of form fields and make dictionary for fetch
@@ -47,22 +50,27 @@ function send_email() {
     subject: subject,
     body: body
   }
-  fetch('/email', {
+
+  fetch('emails', {
     method: 'POST',
     credentials: 'include',
     headers: new Headers ({
       'content-type': 'application/json'
     }),
     body: JSON.stringify(email)
-  }).then(function (response) {
-    if (response.status !== 201) {
-      alert(response.text);
-      return false;
-    } else {
-      load_mailbox();
-      return false;
-    }
-  }).catch(function (error) {
-    console.error(error);
-  })
+    })
+    .then(response => {
+      return response.json();
+    })
+    .then(data => {
+      if (data.error){
+        alert(data.error);
+        return false;
+      }
+      alert(data.message);
+      load_mailbox('sent');
+    })
+    .catch(error => {
+      console.error(error);
+    });
 };
