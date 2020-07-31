@@ -48,15 +48,35 @@ function load_mailbox(mailbox) {
         var timestamp = '<p> Sent: ' + email.timestamp + '</p>';
         var view_button = '<button class="btn btn-sm btn-outline-info" id="view-button" value="' + 
           email.id +
-          '" onclick="load_email(this)">View Email</button>'
-        if (email.read === 'true'){
-          return '<div class="email read">' + sender + subject + timestamp + view_button + '</div>';
+          '" onclick="load_email(this.value)">View Email</button>'
+        // check if email is archived to determine which button to add
+        if (email.archived === false) {
+          var archive_button = '<button class="btn btn-sm btn-outline-secondary" id="archive-button" data-id="' +
+            email.id +
+            '" data-value="' +
+            email.archived +
+            '" onclick="archive_email(this)">Archive Email</button>'
         } else {
-          return '<div class="email">' + sender + subject + timestamp + view_button + '</div>';
+          var archive_button = '<button class="btn btn-sm btn-outline-secondary" id="archive-button" data-id="' +
+            email.id +
+            '" data-value="' +
+            email.archived +
+            '" onclick="archive_email(this)">Unarchive Email</button>'
         }
-        //if (mailbox === 'index'){
-          
-        //} 
+        // check if mailbox is sent to avoid adding archive button
+        if (mailbox === 'sent') {
+          if (email.read === true){
+            return '<div class="email read">' + sender + subject + timestamp + view_button + '</div>';
+          } else {
+            return '<div class="email">' + sender + subject + timestamp + view_button + '</div>';
+          }
+        } else {
+          if (email.read === true){
+            return '<div class="email read">' + sender + subject + timestamp + view_button + archive_button + '</div>';
+          } else {
+            return '<div class="email">' + sender + subject + timestamp + view_button + archive_button + '</div>';
+          }
+        }
       }).join('');
 
     } else {
