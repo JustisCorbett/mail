@@ -42,25 +42,27 @@ function load_mailbox(mailbox) {
   .then(response => response.json())
   .then(emails => {
     if (emails) {
-      console.log(email);
       var html = emails.map((email) => {
-        sender = '<h5>' + email.sender + '</h5>';
-        recipients = '<h5>' + email.recipients.join(',') + '</h5>';
-        subject = '<h6>' + email.subject + '</h6>';
-        body = '<p>' + email.subject + '</p>';
-        timestamp = '<p>' + email.timestamp + '</p>';
-        if (email.read === true){
-          return '<div class="email read">' + sender + recipients + subject + body + timestamp + '</div>';
+        var sender = '<h5> Sender: ' + email.sender + '</h5>';
+        var subject = '<h6> Subject: ' + email.subject + '</h6>';
+        var timestamp = '<p> Sent: ' + email.timestamp + '</p>';
+        var view_button = '<button class="btn btn-sm btn-outline-info" id="view-button" value="' + 
+          email.id +
+          '" onclick="load_email(this)">View Email</button>'
+        if (email.read === 'true'){
+          return '<div class="email read">' + sender + subject + timestamp + view_button + '</div>';
         } else {
-          return '<div class="email">' + sender + recipients + subject + body + timestamp + '</div>';
+          return '<div class="email">' + sender + subject + timestamp + view_button + '</div>';
         }
+        //if (mailbox === 'index'){
+          
+        //} 
       }).join('');
 
     } else {
       var html = '<h4> No Emails Found </h4>';
-      
     }
-    document.querySelector('#email-container').appendChild(html);
+    document.querySelector('#email-container').innerHTML = html;
   })
 }
 
