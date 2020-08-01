@@ -46,9 +46,22 @@ function load_mailbox(mailbox) {
         var sender = '<h5> Sender: ' + email.sender + '</h5>';
         var subject = '<h6> Subject: ' + email.subject + '</h6>';
         var timestamp = '<p> Sent: ' + email.timestamp + '</p>';
+        if (email.read === true){
+          return '<div class="email read" data-id="' + email.id + '" onclick="load_email(this)">' +
+          sender + 
+          subject + 
+          timestamp + '</div>';
+        } else {
+          return '<div class="email" data-id="' + email.id + '" onclick="load_email(this)">' + 
+          sender + 
+          subject + 
+          timestamp + '</div>';
+        }
+        /*
         var view_button = '<button class="btn btn-sm btn-outline-info" id="view-button" value="' + 
           email.id +
           '" onclick="load_email(this.value)">View Email</button>'
+        
         // check if email is archived to determine which button to add
         if (email.archived === false) {
           var archive_button = '<button class="btn btn-sm btn-outline-secondary" id="archive-button" data-id="' +
@@ -63,6 +76,7 @@ function load_mailbox(mailbox) {
             email.archived +
             '" onclick="archive_email(this)">Unarchive Email</button>'
         }
+        
         // check if mailbox is sent to avoid adding archive button
         if (mailbox === 'sent') {
           if (email.read === true){
@@ -77,6 +91,7 @@ function load_mailbox(mailbox) {
             return '<div class="email">' + sender + subject + timestamp + view_button + archive_button + '</div>';
           }
         }
+        */
       }).join('');
 
     } else {
@@ -119,4 +134,27 @@ function send_email() {
     .catch(error => {
       console.error(error);
     });
+};
+
+function archive_email(email){
+  const id = email.getAttribute("data-id");
+  const is_archived = email.getAttribute("data-value");
+
+  if (is_archived === 'true'){
+    fetch('/emails/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({
+        archived: false
+      })
+    }).then(response => {
+      return response.json();
+    }).then(data => {
+      if (data.error){
+        alert(data.error);
+        return false;
+      }
+      alert(data.message);
+      load_mailbox('sent');
+    })
+  }
 };
