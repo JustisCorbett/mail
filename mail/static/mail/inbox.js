@@ -115,14 +115,24 @@ function archive_email(email){
         archived: false
       })
     }).then(response => {
+      if(response.ok) {
+        load_mailbox('inbox');
+      } else {
       return response.json();
-    }).then(data => {
-      if (data.error){
-        alert(data.error);
-        return false;
       }
-      alert(data.message);
-      load_mailbox('sent');
+    })
+  } else {
+    fetch('emails/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({
+        archived: true
+      })
+    }).then(response => {
+      if(response.ok) {
+        load_mailbox('inbox');
+      } else {
+      return response.json();
+      }
     })
   }
 };
