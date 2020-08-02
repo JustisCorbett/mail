@@ -21,6 +21,7 @@ function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#email-view').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -33,6 +34,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#box-name').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -42,10 +44,10 @@ function load_mailbox(mailbox) {
   .then(response => response.json())
   .then(emails => {
     if (emails) {
-      var html = emails.map((email) => {
-        var sender = '<h5> Sender: ' + email.sender + '</h5>';
-        var subject = '<h6> Subject: ' + email.subject + '</h6>';
-        var timestamp = '<p> Sent: ' + email.timestamp + '</p>';
+      let html = emails.map((email) => {
+        let sender = '<h5> Sender: ' + email.sender + '</h5>';
+        let subject = '<h6> Subject: ' + email.subject + '</h6>';
+        let timestamp = '<p> Sent: ' + email.timestamp + '</p>';
         if (email.read === true){
           return '<div class="email read" data-id="' + email.id + '" onclick="load_email(this)">' +
           sender + 
@@ -95,7 +97,7 @@ function load_mailbox(mailbox) {
       }).join('');
 
     } else {
-      var html = '<h4> No Emails Found </h4>';
+      let html = '<h4> No Emails Found </h4>';
     }
     document.querySelector('#email-container').innerHTML = html;
   })
@@ -141,7 +143,7 @@ function archive_email(email){
   const is_archived = email.getAttribute("data-value");
 
   if (is_archived === 'true'){
-    fetch('/emails/' + id, {
+    fetch('emails/' + id, {
       method: 'PUT',
       body: JSON.stringify({
         archived: false
@@ -158,3 +160,21 @@ function archive_email(email){
     })
   }
 };
+
+function load_email(email) {
+
+  // Show the email and hide other views
+  document.querySelector('#emails-view').style.display = 'block';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'none';
+
+  const email_id = email.getAttribute("data-id");
+
+  fetch('emails/' + email_id)
+  .then(response => response.json())
+  .then(email => {
+    if (email) {
+    
+    }
+  })
+}
