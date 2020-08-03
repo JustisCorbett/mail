@@ -79,7 +79,7 @@ function send_email() {
     subject: subject,
     body: body
   }
-
+  // send email to server
   fetch('emails', {
     method: 'POST',
     credentials: 'include',
@@ -100,16 +100,16 @@ function send_email() {
       console.error(error);
     });
 };
-
+// Archive email via put if its unarchived, else unarchive it.
 function archive_email(email){
   const id = email.getAttribute("data-id");
   const is_archived = email.getAttribute("data-value");
 
-  if (is_archived === true){
+  if (is_archived === 'false') {
     fetch('emails/' + id, {
       method: 'PUT',
       body: JSON.stringify({
-        archived: false
+        archived: true
       })
     }).then(response => {
       if(response.ok) {
@@ -122,7 +122,7 @@ function archive_email(email){
     fetch('emails/' + id, {
       method: 'PUT',
       body: JSON.stringify({
-        archived: true
+        archived: false
       })
     }).then(response => {
       if(response.ok) {
@@ -143,7 +143,6 @@ function load_email(email) {
 
   const email_id = email.getAttribute("data-id");
   let html = '';
-  let is_read = false;
 
   fetch('emails/' + email_id)
     .then((response) => {
@@ -153,13 +152,18 @@ function load_email(email) {
         throw Error(response.statusText);
       }
     }).then(email => {
+      let is_read = email.read;
       if (email) {
         let sender = '<h5> Sender: ' + email.sender + '</h5>';
         let recipients = '<h6> Recipients: ' + email.recipients + '</h6>';
         let subject = '<h6> Subject: ' + email.subject + '</h6>';
         let body = '<p>' + email.body + '<p>';
         let timestamp = '<div> Sent: ' + email.timestamp + '</div>';
-        let is_read = email.read;
+        let reply_button = '<button class="btn btn-sm btn-outline-primary" id="reply-button" data-sender="' +
+          sender + '" data-subject="' +
+          subject + '" data-body="' +
+          body + '" data-timestamp="' +
+          timestamp + '" onclick="reply_email(this)">Reply</button>';
         
         // check if email is archived to determine which button to add
         if (email.archived === false) {
@@ -176,7 +180,7 @@ function load_email(email) {
             '" onclick="archive_email(this)">Unarchive Email</button>'
         }
         
-        html = '<div class="email">' + sender + recipients + subject + body + timestamp + archive_button + '</div>';
+        html = '<div class="email">' + sender + recipients + subject + body + timestamp + reply_button + archive_button + '</div>';
         
       } else {
         html = '<h4> No Emails Found </h4>';
@@ -185,8 +189,9 @@ function load_email(email) {
       document.querySelector('#email-view').innerHTML = html;
       return is_read;
     }).then(is_read =>{
+      console.log(is_read);
       if (is_read === false){
-        fetch('emails/' + id, {
+        fetch('emails/' + email_id, {
           method: 'PUT',
           body: JSON.stringify({
             read: true
