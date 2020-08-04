@@ -27,7 +27,24 @@ function compose_email() {
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
-}
+};
+
+function reply_email(email) {
+  compose_email();
+
+  const re = 'Re: ';
+  let subject = email.getAttribute('data-subject');
+  let sender = email.getAttribute('data-sender');
+  let body = email.getAttribute('data-body');
+  let timestamp = email.getAttribute('data-timestamp');
+  let header = 'On ' + timestamp + sender + ' wrote: \n';
+  if (!subject.startsWith(re)) {
+    subject = re + subject;
+  };
+  document.querySelector('#compose-recipients').value = sender;
+  document.querySelector('#compose-subject').value = subject;
+  document.querySelector('#compose-body').value = header + body;
+};
 
 function load_mailbox(mailbox) {
   
@@ -160,10 +177,10 @@ function load_email(email) {
         let body = '<p>' + email.body + '<p>';
         let timestamp = '<div> Sent: ' + email.timestamp + '</div>';
         let reply_button = '<button class="btn btn-sm btn-outline-primary" id="reply-button" data-sender="' +
-          sender + '" data-subject="' +
-          subject + '" data-body="' +
-          body + '" data-timestamp="' +
-          timestamp + '" onclick="reply_email(this)">Reply</button>';
+          email.sender + '" data-subject="' +
+          email.subject + '" data-body="' +
+          email.body + '" data-timestamp="' +
+          email.timestamp + '" onclick="reply_email(this)">Reply</button>';
         
         // check if email is archived to determine which button to add
         if (email.archived === false) {
